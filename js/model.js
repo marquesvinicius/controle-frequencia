@@ -1,6 +1,6 @@
 // js/model.js
 const Model = {
-    API_URL: "http://localhost:3000/api",
+    API_URL: "/api",
   
     async getTurmas() {
       try {
