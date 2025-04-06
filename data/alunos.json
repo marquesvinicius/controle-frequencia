@@ -1,0 +1,26 @@
+[
+  {
+    "id": "4199203e-71e1-4989-b724-6014ec95d735",
+    "nome": "Aline",
+    "turmaId": "a9575ad5-5fce-44c8-9296-a8c4b97c824b",
+    "dataCadastro": "2025-04-06T23:33:49.103Z"
+  },
+  {
+    "id": "77eea2ed-a45f-4b7b-b552-14e1eb517db4",
+    "nome": "Avidal",
+    "turmaId": "a9575ad5-5fce-44c8-9296-a8c4b97c824b",
+    "dataCadastro": "2025-04-06T23:34:21.906Z"
+  },
+  {
+    "id": "46c76137-7cea-40fc-b224-8c894d140bfb",
+    "nome": "Bruno",
+    "turmaId": "493225ed-63bc-4eb8-a0a4-644499c3e7a4",
+    "dataCadastro": "2025-04-06T23:36:01.591Z"
+  },
+  {
+    "id": "e84c6839-7a45-4cb6-af4b-0df17b284f3a",
+    "nome": "Breno",
+    "turmaId": "493225ed-63bc-4eb8-a0a4-644499c3e7a4",
+    "dataCadastro": "2025-04-06T23:36:07.325Z"
+  }
+]
