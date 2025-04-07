@@ -1,4 +1,3 @@
-// js/view.js
 const View = {
     atualizarListaTurmas: async function () {
       if (!document.getElementById("turmaAluno")) return; // Só executa em cadastros.html
