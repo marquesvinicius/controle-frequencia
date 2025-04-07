@@ -91,7 +91,7 @@ const View = {
               const turmaNome = turma ? turma.nome : "Turma não encontrada";
               const option = document.createElement("option");
               option.value = aluno.id;
-              option.textContent = `${turmaNome} - ${aluno.nome}`; // Formato: "Turma - Nome"
+              option.textContent = `${turma.nome} - ${aluno.nome}`; // Formato: "Turma - Nome"
               select.appendChild(option);
             });
           }
