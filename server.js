@@ -145,7 +145,6 @@ app.get("/api/presencas/aluno/:alunoid", async (req, res) => {
   const historicoAluno = presencas.map((p) => ({
     data: p.presencas.data,
     turmaid: p.presencas.turma_id,
-    alunoId: alunoid,  // Adicionando alunoId para consistência
     presente: p.presente,
   }));
   res.json(historicoAluno);
