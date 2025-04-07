@@ -109,7 +109,12 @@ app.get("/api/presencas/turma/:turmaid/data/:data", async (req, res) => {
     console.error("Erro ao buscar presenças:", error);
     return res.status(500).json({ error: "Erro ao buscar presenças" });
   }
-  res.json(presencas);
+  // Garantir que presencas.registros seja um array
+  const presencasFormatadas = presencas.map((presenca) => ({
+    ...presenca,
+    registros: Array.isArray(presenca.registros) ? presenca.registros : [],
+  }));
+  res.json(presencasFormatadas);
 });
 
 app.get("/api/presencas/aluno/:alunoid", async (req, res) => {
@@ -121,8 +126,9 @@ app.get("/api/presencas/aluno/:alunoid", async (req, res) => {
     console.error("Erro ao buscar presenças do aluno:", error);
     return res.status(500).json({ error: "Erro ao buscar presenças do aluno" });
   }
+  // Filtrar no lado do servidor
   const historicoAluno = presencas
-    .filter((p) => p.registros.some((r) => r.alunoid === alunoid))
+    .filter((p) => p.registros && Array.isArray(p.registros) && p.registros.some((r) => r.alunoid === alunoid))
     .map((p) => {
       const registro = p.registros.find((r) => r.alunoid === alunoid);
       return {
@@ -141,10 +147,15 @@ app.post("/api/presencas", async (req, res) => {
       error: "Dados incompletos. Forneça turmaId, data e um array de registros",
     });
   }
+  // Validar o formato de cada registro
   for (const registro of registros) {
-    if (!registro.alunoid || typeof registro.presente !== "boolean") {
+    if (
+      !registro.alunoid ||
+      typeof registro.alunoid !== "string" ||
+      typeof registro.presente !== "boolean"
+    ) {
       return res.status(400).json({
-        error: "Cada registro deve ter alunoid e status de presença (boolean)",
+        error: "Cada registro deve ter alunoid (string) e presente (boolean)",
       });
     }
   }
