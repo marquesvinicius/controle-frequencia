@@ -63,31 +63,40 @@ const View = {
       }
     },
   
-    atualizarSeletorAlunos: async function () {
-        if (!document.getElementById("selectAluno")) return;
+    atualizarSeletorAlunos: async function (seletorId) {
+        if (!document.getElementById(seletorId)) return;
         try {
-          const select = document.getElementById("selectAluno");
-          select.innerHTML = '<option value="">Selecione um aluno</option>';
+          const select = document.getElementById(seletorId);
+          select.innerHTML = "";
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "Selecione um aluno";
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          select.appendChild(defaultOption);
+    
           const alunos = await Model.getAlunos();
-          const turmas = await Model.getTurmas();
-          // Adicionar logs para depuração
-          console.log("Alunos:", alunos);
-          console.log("Turmas:", turmas);
-          alunos.forEach((aluno) => {
-            const turma = turmas.find((t) => {
-              const match = t.id === aluno.turma_id;
-              if (!match) {
-                console.log(`Comparando turma.id=${t.id} com aluno.turma_id=${aluno.turma_id}`);
-              }
-              return match;
-            });
+          const turmas = await Model.getTurmas(); // Busca as turmas para associar
+    
+          if (alunos.length === 0) {
             const option = document.createElement("option");
-            option.value = aluno.id;
-            option.textContent = turma ? `${turma.nome} - ${aluno.nome}` : `Turma não encontrada - ${aluno.nome}`;
+            option.value = "";
+            option.textContent = "Nenhum aluno cadastrado";
+            option.disabled = true;
             select.appendChild(option);
-          });
+          } else {
+            alunos.sort((a, b) => a.nome.localeCompare(b.nome));
+            alunos.forEach((aluno) => {
+              const turma = turmas.find((t) => t.id === aluno.turmaId); // Encontra a turma do aluno
+              const turmaNome = turma ? turma.nome : "Turma não encontrada";
+              const option = document.createElement("option");
+              option.value = aluno.id;
+              option.textContent = `${turmaNome} - ${aluno.nome}`; // Formato: "Turma - Nome"
+              select.appendChild(option);
+            });
+          }
         } catch (error) {
-          console.error("Erro ao renderizar select de alunos:", error);
+          console.error("Erro ao atualizar seletor de alunos:", error);
         }
       },
   
