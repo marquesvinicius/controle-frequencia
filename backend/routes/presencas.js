@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
 // Buscar presenças por turma e data
 router.get("/turma/:turmaid/data/:data", async (req, res) => {
   const { turmaid, data } = req.params;
-  // Primeiro, buscar o registro de presenças para a turma e data
   const { data: presenca, error: presencaError } = await supabase
     .from("presencas")
     .select("id")
@@ -27,10 +26,8 @@ router.get("/turma/:turmaid/data/:data", async (req, res) => {
     return res.status(500).json({ error: "Erro ao buscar presenças" });
   }
   if (!presenca) {
-    // Se não houver registro de presenças, retornar um objeto vazio com registros vazios
     return res.json({ turma_id: turmaid, data, registros: [] });
   }
-  // Buscar os registros de presença dos alunos
   const { data: registros, error: registrosError } = await supabase
     .from("presenca_alunos")
     .select("aluno_id, presente")
@@ -39,7 +36,6 @@ router.get("/turma/:turmaid/data/:data", async (req, res) => {
     console.error("Erro ao buscar registros de presença:", registrosError);
     return res.status(500).json({ error: "Erro ao buscar registros de presença" });
   }
-  // Formatar os registros no formato esperado pelo frontend
   const registrosFormatados = registros.map((registro) => ({
     alunoid: registro.aluno_id,
     presente: registro.presente,
@@ -74,7 +70,6 @@ router.post("/", async (req, res) => {
       error: "Dados incompletos. Forneça turmaId, data e um array de registros",
     });
   }
-  // Validar o formato de cada registro
   for (const registro of registros) {
     if (
       !registro.alunoid ||
@@ -86,7 +81,6 @@ router.post("/", async (req, res) => {
       });
     }
   }
-  // Validar se a turma existe
   const { data: turma, error: turmaError } = await supabase
     .from("turmas")
     .select("id")
@@ -95,7 +89,6 @@ router.post("/", async (req, res) => {
   if (turmaError || !turma) {
     return res.status(404).json({ error: "Turma não encontrada" });
   }
-  // Verificar se já existe um registro de presenças para essa turma e data
   const { data: existingPresenca, error: checkError } = await supabase
     .from("presencas")
     .select("id")
@@ -109,7 +102,6 @@ router.post("/", async (req, res) => {
   let presencaId;
   if (existingPresenca) {
     presencaId = existingPresenca.id;
-    // Deletar os registros antigos de presença para essa chamada
     const { error: deleteError } = await supabase
       .from("presenca_alunos")
       .delete()
@@ -119,7 +111,6 @@ router.post("/", async (req, res) => {
       return res.status(500).json({ error: "Erro ao atualizar presenças" });
     }
   } else {
-    // Criar um novo registro de presenças
     const { data: newPresenca, error: insertError } = await supabase
       .from("presencas")
       .insert([{ turma_id: turmaid, data }])
@@ -131,7 +122,6 @@ router.post("/", async (req, res) => {
     }
     presencaId = newPresenca.id;
   }
-  // Inserir os novos registros de presença dos alunos
   const registrosParaInserir = registros.map((registro) => ({
     presenca_id: presencaId,
     aluno_id: registro.alunoid,
@@ -145,7 +135,6 @@ router.post("/", async (req, res) => {
     console.error("Erro ao inserir registros de presença:", insertRegistrosError);
     return res.status(500).json({ error: "Erro ao inserir registros de presença" });
   }
-  // Retornar o registro de presenças no formato esperado pelo frontend
   const registrosFormatados = insertedRegistros.map((registro) => ({
     alunoid: registro.aluno_id,
     presente: registro.presente,
