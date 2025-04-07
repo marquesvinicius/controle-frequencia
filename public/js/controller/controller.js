@@ -2,14 +2,18 @@
 const Controller = {
   init: async function () {
     const path = window.location.pathname;
+    
+    // Limpar inicializações anteriores
+    View.initialized.clear();
+
     if (path.includes("cadastros.html")) {
-      this.initCadastros();
+      await this.initCadastros();
     } else if (path.includes("marcar-presenca.html")) {
-      this.initMarcarPresenca();
-    } else if (path.includes("consultar-frequencias.html")) { // Atualizado
-      this.initConsultarFrequencia();
-    } else if (path.includes("relatorio-aluno.html")) { // Atualizado
-      this.initRelatorioAluno();
+      await this.initMarcarPresenca();
+    } else if (path.includes("consultar-frequencias.html")) {
+      await this.initConsultarFrequencia();
+    } else if (path.includes("relatorio-aluno.html")) {
+      await this.initRelatorioAluno();
     }
   },
 

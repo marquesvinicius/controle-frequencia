@@ -34,86 +34,86 @@ const View = {
 
   atualizarSeletorTurmas: async function (seletorId) {
     console.log(`Tentando inicializar seletor: ${seletorId}`); // Debug
-
+    
     if (this.initialized.has(seletorId)) {
-      console.log(`Seletor ${seletorId} já foi inicializado`); // Debug
-      return;
+        console.log(`Seletor ${seletorId} já foi inicializado`); // Debug
+        return;
     }
-
+    
     const select = document.getElementById(seletorId);
     if (!select) {
-      console.log(`Seletor ${seletorId} não encontrado no DOM`); // Debug
-      return;
+        console.log(`Seletor ${seletorId} não encontrado no DOM`); // Debug
+        return;
     }
 
     try {
-      console.log(`Iniciando atualização do seletor ${seletorId}`); // Debug
-      select.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.textContent = "Selecione uma turma";
-      defaultOption.disabled = true;
-      defaultOption.selected = true;
-      select.appendChild(defaultOption);
-      const turmas = await Model.getTurmas();
-      if (turmas.length === 0) {
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "Nenhuma turma cadastrada";
-        option.disabled = true;
-        select.appendChild(option);
-      } else {
-        turmas.forEach((turma) => {
-          const option = document.createElement("option");
-          option.value = turma.id;
-          option.textContent = `${turma.nome} (${turma.turno})`;
-          select.appendChild(option);
-        });
-      }
-
-      console.log(`Seletor ${seletorId} inicializado com sucesso`); // Debug
-      this.initialized.add(seletorId);
+        console.log(`Iniciando atualização do seletor ${seletorId}`); // Debug
+        select.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Selecione uma turma";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+        const turmas = await Model.getTurmas();
+        if (turmas.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Nenhuma turma cadastrada";
+            option.disabled = true;
+            select.appendChild(option);
+        } else {
+            turmas.forEach((turma) => {
+                const option = document.createElement("option");
+                option.value = turma.id;
+                option.textContent = `${turma.nome} (${turma.turno})`;
+                select.appendChild(option);
+            });
+        }
+        
+        console.log(`Seletor ${seletorId} inicializado com sucesso`); // Debug
+        this.initialized.add(seletorId);
     } catch (error) {
-      console.error(`Erro ao atualizar seletor ${seletorId}:`, error);
+        console.error(`Erro ao atualizar seletor ${seletorId}:`, error);
     }
   },
 
   atualizarSeletorAlunos: async function (seletorId) {
     if (!document.getElementById(seletorId)) return;
     try {
-      const select = document.getElementById(seletorId);
-      select.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.textContent = "Selecione um aluno";
-      defaultOption.disabled = true;
-      defaultOption.selected = true;
-      select.appendChild(defaultOption);
+        const select = document.getElementById(seletorId);
+        select.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Selecione um aluno";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
 
-      const alunos = await Model.getAlunos();
-      const turmas = await Model.getTurmas();
+        const alunos = await Model.getAlunos();
+        const turmas = await Model.getTurmas();
 
-      if (alunos.length === 0) {
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "Nenhum aluno cadastrado";
-        option.disabled = true;
-        select.appendChild(option);
-      } else {
-        alunos.sort((a, b) => a.nome.localeCompare(b.nome));
-        alunos.forEach((aluno) => {
-          const turma = turmas.find((t) => t.id === aluno.turma_id); // Corrigido para turma_id
-          const turmaNome = turma ? turma.nome : "Turma não encontrada";
-          const option = document.createElement("option");
-          option.value = aluno.id;
-          option.textContent = `${aluno.nome} (${turmaNome})`; // Adicionado nome da turma
-          select.appendChild(option);
-        });
-      }
+        if (alunos.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Nenhum aluno cadastrado";
+            option.disabled = true;
+            select.appendChild(option);
+        } else {
+            alunos.sort((a, b) => a.nome.localeCompare(b.nome));
+            alunos.forEach((aluno) => {
+                const turma = turmas.find((t) => t.id === aluno.turma_id); // Corrigido para turma_id
+                const turmaNome = turma ? turma.nome : "Turma não encontrada";
+                const option = document.createElement("option");
+                option.value = aluno.id;
+                option.textContent = `${aluno.nome} (${turmaNome})`; // Adicionado nome da turma
+                select.appendChild(option);
+            });
+        }
     } catch (error) {
-      console.error("Erro ao atualizar seletor de alunos:", error);
+        console.error("Erro ao atualizar seletor de alunos:", error);
     }
-  },
+},
 
   renderizarListaPresenca: async function (turmaId, data) {
     if (!document.getElementById("listaPresenca")) return;
