@@ -76,7 +76,7 @@ const View = {
           select.appendChild(defaultOption);
     
           const alunos = await Model.getAlunos();
-          const turmas = await Model.getTurmas(); // Busca as turmas para associar
+          const turmas = await Model.getTurmas();
     
           if (alunos.length === 0) {
             const option = document.createElement("option");
@@ -87,11 +87,11 @@ const View = {
           } else {
             alunos.sort((a, b) => a.nome.localeCompare(b.nome));
             alunos.forEach((aluno) => {
-              const turma = turmas.find((t) => t.id === aluno.turmaId); // Encontra a turma do aluno
+              const turma = turmas.find((t) => t.id === aluno.turma_id);
               const turmaNome = turma ? turma.nome : "Turma não encontrada";
               const option = document.createElement("option");
               option.value = aluno.id;
-              option.textContent = `${aluno.nome}`; // Formato: "Turma - Nome"
+              option.textContent = `${aluno.nome} (${turmaNome})`;
               select.appendChild(option);
             });
           }
