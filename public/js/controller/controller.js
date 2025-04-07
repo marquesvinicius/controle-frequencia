@@ -26,7 +26,7 @@ const Controller = {
     if (formAluno) {
       formAluno.addEventListener("submit", this.handleAddAluno.bind(this));
     }
-    await View.atualizarListaTurmas(); // Popula o <select> de turmas para cadastro de aluno
+    await View.atualizarListaTurmas();
   },
 
   initMarcarPresenca: async function () {
