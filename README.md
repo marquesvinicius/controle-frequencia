@@ -53,7 +53,7 @@ O sistema utiliza uma **Arquitetura em Camadas (MVC)** com Backend:
 
 ## Estrutura do Projeto
 
-controle-frequencia/
+`controle-frequencia/
 ├── public/ # Frontend
 │ ├── index.html # Página principal
 │ ├── pages/ # Páginas específicas
@@ -77,7 +77,7 @@ controle-frequencia/
 │
 ├── vercel.json # Configuração do Vercel
 ├── package.json # Configuração do projeto
-└── README.md
+└── README.md`
 
 ## Funcionalidades
 
@@ -99,8 +99,3 @@ O projeto está configurado para deploy automático no Vercel. Cada push para a 
 
 ---
 Desenvolvido por Marques Vinícius Melo Martins
-
-<!-- Scripts -->
-<script src="/js/model/model.js"></script>
-<script src="/js/view/view.js"></script>
-<script src="/js/controller/controller.js"></script>
