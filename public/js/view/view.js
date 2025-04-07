@@ -284,7 +284,7 @@ const View = {
           return;
         }
         const turmas = await Model.getTurmas();
-        const turma = turmas.find((t) => t.id === aluno.turmaId);
+        const turma = turmas.find((t) => t.id === aluno.turma_id);
         const historicoPresenca = await Model.getPresencasByAluno(alunoId);
         const reportHeader = document.createElement("div");
         reportHeader.innerHTML = `
