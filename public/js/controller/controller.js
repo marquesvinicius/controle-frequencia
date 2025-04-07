@@ -6,9 +6,9 @@ const Controller = {
         this.initCadastros();
       } else if (path.includes("marcar-presenca.html")) {
         this.initMarcarPresenca();
-      } else if (path.includes("consultar-frequencias-turma.html")) {
+      } else if (path.includes("consultar-frequencias.html")) {
         this.initConsultarFrequencia();
-      } else if (path.includes("relatorio-frequencias-aluno.html")) {
+      } else if (path.includes("relatorio-aluno.html")) {
         this.initRelatorioAluno();
       }
     },
