@@ -100,94 +100,93 @@ const View = {
         }
       },
   
-    renderizarListaPresenca: async function (turmaId, data) {
-      if (!document.getElementById("listaPresenca")) return;
-      try {
-        const container = document.getElementById("listaPresenca");
-        container.innerHTML = "<p>Carregando lista de alunos...</p>";
-        const alunos = await Model.getAlunosByTurma(turmaId);
-        if (alunos.length === 0) {
-          container.innerHTML = "<p>Nenhum aluno cadastrado para esta turma.</p>";
-          return;
-        }
-        const presencas = await Model.getPresencasByTurmaData(turmaId, data);
-        let registrosExistentes = [];
-        if (presencas.length > 0) {
-          registrosExistentes = presencas[0].registros;
-        }
-        const form = document.createElement("form");
-        form.id = "formPresencaSubmit";
-        form.classList.add("mb-4");
-        const table = document.createElement("table");
-        table.classList.add("table", "table-striped");
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        const thNome = document.createElement("th");
-        thNome.textContent = "Nome";
-        const thPresenca = document.createElement("th");
-        thPresenca.textContent = "Presente";
-        headerRow.appendChild(thNome);
-        headerRow.appendChild(thPresenca);
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-        const tbody = document.createElement("tbody");
-        alunos.forEach((aluno) => {
-          const row = document.createElement("tr");
-          const tdNome = document.createElement("td");
-          tdNome.textContent = aluno.nome;
-          const tdPresenca = document.createElement("td");
-          const checkPresente = document.createElement("input");
-          checkPresente.type = "checkbox";
-          checkPresente.name = `aluno_${aluno.id}`;
-          checkPresente.value = "presente";
-          checkPresente.classList.add("form-check-input");
-          checkPresente.dataset.alunoId = aluno.id;
-          const registroExistente = registrosExistentes.find((r) => r.alunoId === aluno.id);
-          if (registroExistente && registroExistente.presente) {
-            checkPresente.checked = true;
+      renderizarListaPresenca: async function (turmaid, data) {
+        if (!document.getElementById("listaPresenca")) return;
+        try {
+          const container = document.getElementById("listaPresenca");
+          container.innerHTML = "<p>Carregando lista de alunos...</p>";
+          const alunos = await Model.getAlunosByTurma(turmaid);
+          if (alunos.length === 0) {
+            container.innerHTML = "<p>Nenhum aluno cadastrado para esta turma.</p>";
+            return;
           }
-          tdPresenca.appendChild(checkPresente);
-          row.appendChild(tdNome);
-          row.appendChild(tdPresenca);
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-        form.appendChild(table);
-        const submitBtn = document.createElement("button");
-        submitBtn.type = "submit";
-        submitBtn.classList.add("btn", "btn-primary");
-        submitBtn.textContent = "Salvar Presenças";
-        form.appendChild(submitBtn);
-        container.innerHTML = "";
-        container.appendChild(form);
-  
-        form.addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const registros = [];
+          const presencas = await Model.getPresencasByTurmaData(turmaid, data);
+          let registrosExistentes = [];
+          if (presencas.length > 0) {
+            registrosExistentes = presencas[0].registros || [];
+          }
+          const form = document.createElement("form");
+          form.id = "formPresencaSubmit";
+          form.classList.add("mb-4");
+          const table = document.createElement("table");
+          table.classList.add("table", "table-striped");
+          const thead = document.createElement("thead");
+          const headerRow = document.createElement("tr");
+          const thNome = document.createElement("th");
+          thNome.textContent = "Nome";
+          const thPresenca = document.createElement("th");
+          thPresenca.textContent = "Presente";
+          headerRow.appendChild(thNome);
+          headerRow.appendChild(thPresenca);
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+          const tbody = document.createElement("tbody");
           alunos.forEach((aluno) => {
-            const checkbox = document.querySelector(`input[data-aluno-id="${aluno.id}"]`);
-            registros.push({
-              alunoId: aluno.id,
-              presente: checkbox.checked,
-            });
+            const row = document.createElement("tr");
+            const tdNome = document.createElement("td");
+            tdNome.textContent = aluno.nome;
+            const tdPresenca = document.createElement("td");
+            const checkPresente = document.createElement("input");
+            checkPresente.type = "checkbox";
+            checkPresente.classList.add("form-check-input");
+            checkPresente.dataset.alunoId = aluno.id; // Armazena o ID do aluno no dataset
+            const registroExistente = registrosExistentes.find((r) => r.alunoid === aluno.id);
+            if (registroExistente && registroExistente.presente) {
+              checkPresente.checked = true;
+            }
+            tdPresenca.appendChild(checkPresente);
+            row.appendChild(tdNome);
+            row.appendChild(tdPresenca);
+            tbody.appendChild(row);
           });
-          try {
-            await Model.registrarPresencas(turmaId, data, registros);
-            alert("Presenças registradas com sucesso!");
-            await this.renderizarListaPresenca(turmaId, data);
-          } catch (error) {
-            console.error("Erro ao salvar presenças:", error);
-            alert("Erro ao salvar presenças. Verifique o console.");
+          table.appendChild(tbody);
+          form.appendChild(table);
+      
+          const submitBtn = document.createElement("button");
+          submitBtn.type = "submit";
+          submitBtn.classList.add("btn", "btn-primary");
+          submitBtn.textContent = "Salvar Presenças";
+          form.appendChild(submitBtn);
+          container.innerHTML = "";
+          container.appendChild(form);
+      
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const registros = [];
+            alunos.forEach((aluno) => {
+              const checkbox = document.querySelector(`input[data-aluno-id="${aluno.id}"]`);
+              registros.push({
+                alunoid: aluno.id,
+                presente: checkbox.checked,
+              });
+            });
+            try {
+              await Model.registrarPresencas(turmaid, data, registros);
+              alert("Presenças registradas com sucesso!");
+              await this.renderizarListaPresenca(turmaid, data);
+            } catch (error) {
+              console.error("Erro ao salvar presenças:", error);
+              alert("Erro ao salvar presenças. Verifique o console.");
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao renderizar lista de presença:", error);
+          const container = document.getElementById("listaPresenca");
+          if (container) {
+            container.innerHTML = "<p>Erro ao carregar lista. Verifique o console.</p>";
           }
-        });
-      } catch (error) {
-        console.error("Erro ao renderizar lista de presença:", error);
-        const container = document.getElementById("listaPresenca");
-        if (container) {
-          container.innerHTML = "<p>Erro ao carregar lista. Verifique o console.</p>";
         }
-      }
-    },
+      },
   
     renderizarRelatorioFrequencia: async function (turmaId, data) {
       if (!document.getElementById("relatorioFrequencia")) return;
