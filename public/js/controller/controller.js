@@ -1,4 +1,3 @@
-// js/controller.js
 const Controller = {
     init: async function () {
         const path = window.location.pathname;
@@ -22,7 +21,7 @@ const Controller = {
         if (formAluno) {
             formAluno.addEventListener("submit", this.handleAddAluno.bind(this));
         }
-        await View.atualizarListaTurmas(); // Popula o <select> de turmas para cadastro de aluno
+        await View.atualizarListaTurmas();
     },
   
     initMarcarPresenca: async function () {
