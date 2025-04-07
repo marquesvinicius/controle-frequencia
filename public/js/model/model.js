@@ -1,4 +1,3 @@
-// js/model.js
 const Model = {
     API_URL: "/api",
   
