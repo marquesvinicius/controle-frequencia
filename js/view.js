@@ -167,7 +167,7 @@ const View = {
           alunos.forEach((aluno) => {
             const checkbox = document.querySelector(`input[data-aluno-id="${aluno.id}"]`);
             registros.push({
-              alunoId: aluno.id,
+              alunoid: aluno.id,
               presente: checkbox.checked,
             });
           });
@@ -237,7 +237,7 @@ const View = {
           const tdNome = document.createElement("td");
           tdNome.textContent = aluno.nome;
           const tdStatus = document.createElement("td");
-          const registro = registros.find((r) => r.alunoId === aluno.id);
+          const registro = registros.find((r) => r.alunoid === aluno.id);
           if (registro && registro.presente) {
             tdStatus.textContent = "Presente";
             tdStatus.classList.add("text-success");
