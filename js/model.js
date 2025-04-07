@@ -76,7 +76,7 @@ const Model = {
         return await response.json();
       } catch (error) {
         console.error("Erro ao registrar presenças:", error);
-        return null;
+        throw error; // Propagar o erro para o frontend
       }
     },
   
@@ -84,12 +84,8 @@ const Model = {
       try {
         const response = await fetch(`${this.API_URL}/presencas/turma/${turmaid}/data/${data}`);
         if (!response.ok) throw new Error("Erro ao buscar presenças");
-        const presencas = await response.json();
-        // Garantir que presencas.registros seja um array
-        return presencas.map((presenca) => ({
-          ...presenca,
-          registros: Array.isArray(presenca.registros) ? presenca.registros : [],
-        }));
+        const presenca = await response.json();
+        return [presenca]; // Retornar como array para manter compatibilidade com o frontend
       } catch (error) {
         console.error("Erro ao buscar presenças:", error);
         return [];
@@ -100,14 +96,7 @@ const Model = {
       try {
         const response = await fetch(`${this.API_URL}/presencas/aluno/${alunoid}`);
         if (!response.ok) throw new Error("Erro ao buscar presenças do aluno");
-        const historico = await response.json();
-        // Validar o formato do histórico
-        return historico.filter(
-          (registro) =>
-            registro.data &&
-            registro.turmaid &&
-            typeof registro.presente === "boolean"
-        );
+        return await response.json();
       } catch (error) {
         console.error("Erro ao buscar presenças do aluno:", error);
         return [];

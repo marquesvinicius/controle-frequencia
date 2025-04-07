@@ -100,43 +100,53 @@ app.get("/api/presencas", async (req, res) => {
 
 app.get("/api/presencas/turma/:turmaid/data/:data", async (req, res) => {
   const { turmaid, data } = req.params;
-  const { data: presencas, error } = await supabase
+  // Primeiro, buscar o registro de presenças para a turma e data
+  const { data: presenca, error: presencaError } = await supabase
     .from("presencas")
-    .select("*")
+    .select("id")
     .eq("turma_id", turmaid)
-    .eq("data", data);
-  if (error) {
-    console.error("Erro ao buscar presenças:", error);
+    .eq("data", data)
+    .single();
+  if (presencaError && presencaError.code !== "PGRST116") {
+    console.error("Erro ao buscar presenças:", presencaError);
     return res.status(500).json({ error: "Erro ao buscar presenças" });
   }
-  // Garantir que presencas.registros seja um array
-  const presencasFormatadas = presencas.map((presenca) => ({
-    ...presenca,
-    registros: Array.isArray(presenca.registros) ? presenca.registros : [],
+  if (!presenca) {
+    // Se não houver registro de presenças, retornar um objeto vazio com registros vazios
+    return res.json({ turma_id: turmaid, data, registros: [] });
+  }
+  // Buscar os registros de presença dos alunos
+  const { data: registros, error: registrosError } = await supabase
+    .from("presenca_alunos")
+    .select("aluno_id, presente")
+    .eq("presenca_id", presenca.id);
+  if (registrosError) {
+    console.error("Erro ao buscar registros de presença:", registrosError);
+    return res.status(500).json({ error: "Erro ao buscar registros de presença" });
+  }
+  // Formatar os registros no formato esperado pelo frontend
+  const registrosFormatados = registros.map((registro) => ({
+    alunoid: registro.aluno_id,
+    presente: registro.presente,
   }));
-  res.json(presencasFormatadas);
+  res.json({ turma_id: turmaid, data, registros: registrosFormatados });
 });
 
 app.get("/api/presencas/aluno/:alunoid", async (req, res) => {
   const { alunoid } = req.params;
   const { data: presencas, error } = await supabase
-    .from("presencas")
-    .select("data, turma_id, registros");
+    .from("presenca_alunos")
+    .select("presente, presenca_id, presencas (turma_id, data)")
+    .eq("aluno_id", alunoid);
   if (error) {
     console.error("Erro ao buscar presenças do aluno:", error);
     return res.status(500).json({ error: "Erro ao buscar presenças do aluno" });
   }
-  // Filtrar no lado do servidor
-  const historicoAluno = presencas
-    .filter((p) => p.registros && Array.isArray(p.registros) && p.registros.some((r) => r.alunoid === alunoid))
-    .map((p) => {
-      const registro = p.registros.find((r) => r.alunoid === alunoid);
-      return {
-        data: p.data,
-        turmaid: p.turma_id,
-        presente: registro.presente,
-      };
-    });
+  const historicoAluno = presencas.map((p) => ({
+    data: p.presencas.data,
+    turmaid: p.presencas.turma_id,
+    presente: p.presente,
+  }));
   res.json(historicoAluno);
 });
 
@@ -168,7 +178,8 @@ app.post("/api/presencas", async (req, res) => {
   if (turmaError || !turma) {
     return res.status(404).json({ error: "Turma não encontrada" });
   }
-  const { data: existing, error: checkError } = await supabase
+  // Verificar se já existe um registro de presenças para essa turma e data
+  const { data: existingPresenca, error: checkError } = await supabase
     .from("presencas")
     .select("id")
     .eq("turma_id", turmaid)
@@ -178,28 +189,55 @@ app.post("/api/presencas", async (req, res) => {
     console.error("Erro ao verificar presença existente:", checkError);
     return res.status(500).json({ error: "Erro ao verificar presenças" });
   }
-  if (existing) {
-    const { data, error } = await supabase
-      .from("presencas")
-      .update({ registros })
-      .eq("id", existing.id)
-      .select();
-    if (error) {
-      console.error("Erro ao atualizar presenças:", error);
+  let presencaId;
+  if (existingPresenca) {
+    presencaId = existingPresenca.id;
+    // Deletar os registros antigos de presença para essa chamada
+    const { error: deleteError } = await supabase
+      .from("presenca_alunos")
+      .delete()
+      .eq("presenca_id", presencaId);
+    if (deleteError) {
+      console.error("Erro ao deletar registros antigos:", deleteError);
       return res.status(500).json({ error: "Erro ao atualizar presenças" });
     }
-    res.status(200).json(data[0]);
   } else {
-    const { data, error } = await supabase
+    // Criar um novo registro de presenças
+    const { data: newPresenca, error: insertError } = await supabase
       .from("presencas")
-      .insert([{ turma_id: turmaid, data, registros }])
-      .select();
-    if (error) {
-      console.error("Erro ao registrar presenças:", error);
-      return res.status(500).json({ error: "Erro ao registrar presenças" });
+      .insert([{ turma_id: turmaid, data }])
+      .select()
+      .single();
+    if (insertError) {
+      console.error("Erro ao criar registro de presenças:", insertError);
+      return res.status(500).json({ error: "Erro ao criar registro de presenças" });
     }
-    res.status(201).json(data[0]);
+    presencaId = newPresenca.id;
   }
+  // Inserir os novos registros de presença dos alunos
+  const registrosParaInserir = registros.map((registro) => ({
+    presenca_id: presencaId,
+    aluno_id: registro.alunoid,
+    presente: registro.presente,
+  }));
+  const { data: insertedRegistros, error: insertRegistrosError } = await supabase
+    .from("presenca_alunos")
+    .insert(registrosParaInserir)
+    .select();
+  if (insertRegistrosError) {
+    console.error("Erro ao inserir registros de presença:", insertRegistrosError);
+    return res.status(500).json({ error: "Erro ao inserir registros de presença" });
+  }
+  // Retornar o registro de presenças no formato esperado pelo frontend
+  const registrosFormatados = insertedRegistros.map((registro) => ({
+    alunoid: registro.aluno_id,
+    presente: registro.presente,
+  }));
+  res.status(existingPresenca ? 200 : 201).json({
+    turma_id: turmaid,
+    data,
+    registros: registrosFormatados,
+  });
 });
 
 app.listen(PORT, () => {
