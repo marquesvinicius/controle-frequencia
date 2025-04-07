@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 
-// Importação das rotas
 const turmasRoutes = require("./routes/turmas");
 const alunosRoutes = require("./routes/alunos");
 const presencasRoutes = require("./routes/presencas");
@@ -18,7 +17,6 @@ app.use("/api/turmas", turmasRoutes);
 app.use("/api/alunos", alunosRoutes);
 app.use("/api/presencas", presencasRoutes);
 
-// Servir arquivos estáticos
 app.use(express.static("public"));
 
 app.listen(PORT, () => {
