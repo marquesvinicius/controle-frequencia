@@ -99,3 +99,8 @@ O projeto está configurado para deploy automático no Vercel. Cada push para a 
 
 ---
 Desenvolvido por Marques Vinícius Melo Martins
+
+<!-- Scripts -->
+<script src="/js/model/model.js"></script>
+<script src="/js/view/view.js"></script>
+<script src="/js/controller/controller.js"></script>
