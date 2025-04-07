@@ -14,7 +14,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
 // API Routes para Turmas
 app.get("/api/turmas", async (req, res) => {
